@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="CityGaussians realize high-quality and real-time rendering of large-scale scenes across vastly different scales.">
+  <meta name="keywords" content="CityGS, CityGaussian, 3DGS">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CityGaussian: Real-time High-quality Large-Scale Scene Rendering with Gaussians</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/image-compare-viewer.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/citygs-icon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/image-compare-viewer.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">CityGaussian: Real-time High-quality Large-Scale Scene Rendering with Gaussians</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Yang Liu</a><sup>1,2</sup>,</span>
+            <span class="author-block">
+              He Guan</a><sup>1,2</sup>,</span>
+            <span class="author-block">
+              Chuanchen Luo</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Lue Fan</a><sup>1,2</sup>,
+            </span>
+            <span class="author-block">
+              Junran Peng</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Zhaoxiang Zhang</a><sup>1,2,3,4</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Institute of Automation, Chinese Academy of Sciences</span>
+            <span class="author-block"><sup>2</sup>University of Chinese Academy of Sciences (UCAS)</span>
+            <span class="author-block"><sup>3</sup>Centre for Artificial Intelligence and Robotics (HKISI, CAS)</span>
+            <span class="author-block"><sup>4</sup>State Key Laboratory of Multimodal Artificial Intelligence Systems (MAIS)</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- <span class="link-block">
+                <a href="https://arxiv.org/pdf/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span> -->
+              <span class="link-block">
+                <a href="http://arxiv.org/abs/2404.01133"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (Soon)</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-three-fifths">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-matrixcity">
+          <video poster="" id="matrixcity" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/matrixcity.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-building">
+          <video poster="" id="building" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/building.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-rubble">
+          <video poster="" id="rubble" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/rubble.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-residence">
+          <video poster="" id="residence" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/residence.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-sciart">
+          <video poster="" id="sciart" autoplay controls muted loop playsinline height="95%">
+            <source src="./static/videos/sciart.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            The advancement of real-time 3D scene reconstruction and novel view synthesis has been 
+            significantly propelled by 3D Gaussian Splatting (3DGS). However, effectively training 
+            large-scale 3DGS and rendering it in real-time across various scales remains challenging. 
+            This paper introduces CityGaussian (CityGS), which employs a novel divide-and-conquer 
+            training approach and Level-of-Detail (LoD) strategy for efficient large-scale 3DGS 
+            training and rendering. Specifically, the global scene prior and adaptive training data 
+            selection enables efficient training and seamless fusion. Based on fused Gaussian primitives, 
+            we generate different detail levels through compression, and realize fast rendering across 
+            various scales through the proposed block-wise detail levels selection and aggregation 
+            strategy. Extensive experimental results on large-scale scenes demonstrate that our approach 
+            attains state-of-the-art rendering quality, enabling consistent real-time rendering of 
+            large-scale scenes across vastly different scales.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-three-fifths">
+      <h2 class="title is-3">Comparison With SOTA</h2>
+      <img alt="Architecture" src="./static/images/table.png" width="100%"/>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- CityGS: No LoD -->
+      <div class="column">
+        <h2 class="title is-3">CityGS: No LoD</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              Without our proposed LoD technique, the MatrixCity is depicted by 25 million Gaussians. The consequent speed of 18 FPS (tested on A100) leads to unpleasant roaming experience.
+            </p>
+            <!-- <video id="video_10m_short" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/video_10m_short.mp4"
+                      type="video/mp4">
+            </video> -->
+          </div>
+
+        </div>
+      </div>
+      <!--/ CityGS: No LoD. -->
+
+      <!-- CityGS. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3">CityGS</h2>
+          <p>
+            With the support of LoD, our CityGS can be rendered in real-time under vastly different scales. The average speed is 36 FPS (tested on A100).
+          </p>
+          <!-- <video id="video_10m" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/video_10m.mp4"
+                    type="video/mp4">
+          </video> -->
+        </div>
+      </div>
+      <!--/ CityGS. -->
+      
+    </div>
+  
+    <!-- Paper video. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-five-sixths">
+        <video id="video_10m" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/speed.mp4"
+                    type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Visual Comparisons</h2>
+    <div class="content has-text-justified">
+      <p>
+
+      </p>
+    </div>
+    <div class="columns is-centered">
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+
+              <div class="image-compare shadow-md rounded mb-16">
+                <img src="static/images/rubble_mega_8.jpg" alt="" />
+                <img src="static/images/rubble_citygs_8.png" alt="" />
+              </div>
+  
+              <div class="image-compare shadow-md rounded mb-16">
+                <img src="static/images/building_switch_5.jpg" alt="" />
+                <img src="static/images/building_citygs_5.png" alt="" />
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <div class="column">
+        <div class="columns is-centered">
+          <div class="column content">
+           
+            <div class="image-compare shadow-md rounded mb-16">
+              <img src="static/images/residence_gp_20.jpg" alt="" />
+              <img src="static/images/residence_citygs_20.png" alt="" />
+            </div>
+
+            <div class="image-compare shadow-md rounded mb-16">
+              <img src="static/images/matrixcity_3dgs_176.png" alt="" />
+              <img src="static/images/matrixcity_citygs_176.png" alt="" />
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{liu2024citygaussian,
+      title={CityGaussian: Real-time High-quality Large-Scale Scene Rendering with Gaussians}, 
+      author={Yang Liu and He Guan and Chuanchen Luo and Lue Fan and Junran Peng and Zhaoxiang Zhang},
+      year={2024},
+      eprint={2404.01133},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}</code></pre>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">References</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            [Turki 2022] Turki, H., Ramanan, D., Satyanarayanan, M.: Mega-nerf: Scalable construction of large-scale nerfs for virtual fly-throughs. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 12922â12931 (2022)
+          </p>
+          <p>
+            [Zhenxing 2022] Zhenxing, M., Xu, D.: Switch-nerf: Learning scene decomposition with mixture of experts for large-scale neural radiance fields. In: The Eleventh International Conference on Learning Representations (2022)
+          </p>
+          <p>
+            [Yuqi 2023] Zhang, Y., Chen, G., Cui, S.: Efficient large-scale scene representation with a hybrid of high-resolution grid and plane features. arXiv preprint arXiv:2303.03003 (2023)
+          </p>  
+          <p>
+            [Bernhard 2023] Kerbl, B., Kopanas, G., LeimkÃ¼hler, T., Drettakis, G.: 3d gaussian splatting for real-time radiance field rendering. ACM Transactions on Graphics 42(4) (2023)
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="http://www-sop.inria.fr/reves/Basilic/2021/KPLD21/">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="#top" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            We thank the authors of <a href="https://nerfies.github.io/">Nerfies</a> that kindly open sourced the template of this website. There are also many thanks to Jiemin Fang for insightful discussions during the preparation of the draft.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let imageCompareViewers = document.querySelectorAll(".image-compare");
+  let configs = [
+  { 
+    addCircle: true, 
+    verticalMode: false, 
+    hoverStart: true,
+    showLabels: true,
+    labelOptions: {
+      before: 'MegaNeRF [Turki 2022]',  
+      after: 'Ours',
+      onHover: false
+    },
+  },
+  { 
+    addCircle: true, 
+    verticalMode: false, 
+    hoverStart: true,
+    showLabels: true,
+    labelOptions: {
+      before: 'SwitchNeRF [Zhenxing 2022]',  
+      after: 'Ours',
+      onHover: false
+    },
+  },
+  { 
+    addCircle: true, 
+    verticalMode: false, 
+    hoverStart: true,
+    showLabels: true,
+    labelOptions: {
+      before: 'GPNeRF [Yuqi 2023]',  
+      after: 'Ours',
+      onHover: false
+    },
+  },
+  { 
+    addCircle: true, 
+    verticalMode: false, 
+    hoverStart: true,
+    showLabels: true,
+    labelOptions: {
+      before: '3DGS [Bernhard 2023]',  
+      after: 'Ours',
+      onHover: false
+    },
+  }
+  ];
+  
+  imageCompareViewers.forEach((element, i) => {
+      new ImageCompare(element, configs[i]).mount();
+    });
+</script>
+
+</body>
+</html>
