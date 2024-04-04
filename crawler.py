@@ -13,12 +13,39 @@ COMMENT_URL_TEMPLATE = "https://news.ycombinator.com/item?id={}"
 
 
 async def fetch_page(session, url, aim="top news"):
-    async with session.get(url, timeout=60) as response:
-        if response.status == 200:
-            return await response.text(encoding="latin1")
-        else:
-            print(f"Failed to fetch {aim}:", response.status, url)
-            return None
+    retries = 0
+    while retries < 3:
+        try:
+            async with session.get(url, timeout=10) as response:
+                if response.status == 200:
+                    return await response.text(encoding="latin1")
+                else:
+                    print(
+                        time.strftime("%H:%M:%S"),
+                        f"Failed to fetch {aim}:",
+                        response.status,
+                        url,
+                    )
+                    return
+        except aiohttp.client_exceptions.ServerDisconnectedError as e:
+            print(e)
+            retries += 1
+            print(time.strftime("%H:%M:%S"), "Server disconnected. Retrying...")
+            await asyncio.sleep(5)
+        except aiohttp.client_exceptions.ClientConnectorError as e:
+            print(e)
+            retries += 1
+            print(time.strftime("%H:%M:%S"), "Client connection error. Retrying...")
+            await asyncio.sleep(2)
+        except (
+            asyncio.exceptions.TimeoutError,
+            aiohttp.client_exceptions.ClientOSError,
+        ) as e:
+            print(e)
+            return
+    raise aiohttp.client_exceptions.ServerDisconnectedError(
+        time.strftime("%H:%M:%S"), "Retries exceeded."
+    )
 
 
 async def fetch_comment_links(session, id):
@@ -51,7 +78,7 @@ async def save_links(filename, links):
 async def main():
     async with aiohttp.ClientSession() as session:
         while True:
-            print("-->Pages processing started at:", time.strftime("%H:%M:%S"))
+            print(time.strftime("%H:%M:%S"), " -->Pages processing started.")
             html_content = await fetch_page(session, BASE_URL)
             if html_content:
                 soup = BeautifulSoup(html_content, "html.parser")
@@ -91,12 +118,13 @@ async def main():
                     print(f"{len(new_links)} pages added!")
                     await save_links("diff_links.txt", new_links)
 
-                print("<--Pages processing finished at:", time.strftime("%H:%M:%S"))
+                print(time.strftime("%H:%M:%S"), " <--Pages processing finished.")
                 await asyncio.sleep(300)
 
 
 if __name__ == "__main__":
+
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Server process finished.")
+        print(time.strftime("%H:%M:%S"), "Server process finished.")
