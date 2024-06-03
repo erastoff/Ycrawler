@@ -14,6 +14,6 @@ A Python-based asynchronous web crawler to fetch and save the top stories and co
 ### Prerequisites
 
 - Python 3.10+
-- aiohttp = 3.9.3+
+- aiohttp 3.9.3+
 - beautifulsoup4 4.12.3+
 - aiofiles 23.2.1+
